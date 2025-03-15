@@ -1,0 +1,26 @@
+{
+  "name": "@nestjs-microservices-monorepo/account-e2e",
+  "version": "0.0.1",
+  "private": true,
+  "nx": {
+    "name": "account-e2e",
+    "implicitDependencies": [
+      "account"
+    ],
+    "targets": {
+      "e2e": {
+        "executor": "@nx/jest:jest",
+        "outputs": [
+          "{projectRoot}/test-output/jest/coverage"
+        ],
+        "options": {
+          "jestConfig": "apps/account-e2e/jest.config.ts",
+          "passWithNoTests": true
+        },
+        "dependsOn": [
+          "account:build"
+        ]
+      }
+    }
+  }
+}
