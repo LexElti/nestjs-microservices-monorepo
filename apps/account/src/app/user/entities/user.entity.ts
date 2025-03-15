@@ -1,4 +1,4 @@
-import { genSalt, hash } from 'bcryptjs';
+import { compare, genSalt, hash } from 'bcryptjs';
 import { IUser, UserRole } from '@nestjs-microservices-monorepo/interfaces';
 
 export class UserEntity implements IUser {
@@ -20,5 +20,9 @@ export class UserEntity implements IUser {
     const salt = await genSalt(10);
     this.passwordHash = await hash(password, salt);
     return this;
+  }
+
+  public validatePassword(password: string) {
+    return compare(password, this.passwordHash);
   }
 }
