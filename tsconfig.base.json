@@ -13,8 +13,12 @@
     "lib": ["es2020", "dom"],
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
+    "strictPropertyInitialization": false,
     "baseUrl": ".",
     "paths": {
+      "@nestjs-microservices-monorepo/contracts": [
+        "libs/contracts/src/index.ts"
+      ],
       "@nestjs-microservices-monorepo/interfaces": [
         "libs/interfaces/src/index.ts"
       ]
