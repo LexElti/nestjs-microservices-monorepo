@@ -4,12 +4,14 @@ import { RMQService } from 'nestjs-rmq';
 import { UserEntity } from './entities/user.entity';
 import { UserRepository } from './repositories/user.repository';
 import { BuyCourseSaga } from './sagas/buy-course.saga';
+import { UserEventEmiiter } from './user.event-immiter';
 
 @Injectable()
 export class UserService {
   constructor(
     private readonly userRepository: UserRepository,
-    private readonly rmqService: RMQService
+    private readonly rmqService: RMQService,
+    private readonly userEventEmmiter: UserEventEmiiter
   ) {}
 
   public async changeProfile(user: Pick<IUser, 'displayName'>, id: string) {
@@ -49,6 +51,9 @@ export class UserService {
   }
 
   private updateUser(user: UserEntity) {
-    this.userRepository.updateUser(user);
+    return Promise.all([
+      this.userEventEmmiter.handle(user),
+      this.userRepository.updateUser(user),
+    ]);
   }
 }
