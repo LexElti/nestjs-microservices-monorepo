@@ -1,3 +1,4 @@
+import { PaymentStatus } from '@nestjs-microservices-monorepo/contracts';
 import { UserEntity } from '../entities/user.entity';
 import { BuyCourseSaga } from './buy-course.saga';
 
@@ -12,6 +13,7 @@ export abstract class BuyCourseSagaState {
 
   public abstract checkPayment(): Promise<{
     user: UserEntity;
+    status: PaymentStatus;
   }>;
 
   public abstract cencel(): Promise<{ user: UserEntity }>;

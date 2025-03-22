@@ -1,5 +1,9 @@
 import { Body, Controller } from '@nestjs/common';
-import { AccountChangeProfile } from '@nestjs-microservices-monorepo/contracts';
+import {
+  AccountBuyCourse,
+  AccountChangeProfile,
+  AccountCheckPayment,
+} from '@nestjs-microservices-monorepo/contracts';
 import { RMQRoute, RMQValidate } from 'nestjs-rmq';
 import { UserService } from './user.service';
 
@@ -13,5 +17,21 @@ export class UserCommands {
     @Body() { user, id }: AccountChangeProfile.Request
   ): Promise<AccountChangeProfile.Response> {
     return this.userService.changeProfile(user, id);
+  }
+
+  @RMQValidate()
+  @RMQRoute(AccountBuyCourse.topic)
+  async buyCourse(
+    @Body() { userId, courseId }: AccountBuyCourse.Request
+  ): Promise<AccountBuyCourse.Response> {
+    return this.userService.buyCourse(userId, courseId);
+  }
+
+  @RMQValidate()
+  @RMQRoute(AccountCheckPayment.topic)
+  async checkPayment(
+    @Body() { userId, courseId }: AccountCheckPayment.Request
+  ): Promise<AccountCheckPayment.Response> {
+    return this.userService.checkPayments(userId, courseId);
   }
 }

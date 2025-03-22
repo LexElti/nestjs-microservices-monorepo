@@ -1,11 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { IUser } from '@nestjs-microservices-monorepo/interfaces';
+import { RMQService } from 'nestjs-rmq';
 import { UserEntity } from './entities/user.entity';
 import { UserRepository } from './repositories/user.repository';
+import { BuyCourseSaga } from './sagas/buy-course.saga';
 
 @Injectable()
 export class UserService {
-  constructor(private readonly userRepository: UserRepository) {}
+  constructor(
+    private readonly userRepository: UserRepository,
+    private readonly rmqService: RMQService
+  ) {}
 
   public async changeProfile(user: Pick<IUser, 'displayName'>, id: string) {
     const existedUser = await this.userRepository.findUserById(id);
@@ -17,6 +22,30 @@ export class UserService {
     );
     await this.updateUser(userEntity);
     return {};
+  }
+
+  public async buyCourse(userId: string, courseId: string) {
+    const existedUser = await this.userRepository.findUserById(userId);
+    if (!existedUser) {
+      throw new Error('Такого пользователя нет');
+    }
+    const userEntity = new UserEntity(existedUser);
+    const saga = new BuyCourseSaga(userEntity, courseId, this.rmqService);
+    const { user, paymentLink } = await saga.getState().pay();
+    await this.updateUser(user);
+    return { paymentLink };
+  }
+
+  public async checkPayments(userId: string, courseId: string) {
+    const existedUser = await this.userRepository.findUserById(userId);
+    if (!existedUser) {
+      throw new Error('Такого пользователя нет');
+    }
+    const userEntity = new UserEntity(existedUser);
+    const saga = new BuyCourseSaga(userEntity, courseId, this.rmqService);
+    const { user, status } = await saga.getState().checkPayment();
+    await this.updateUser(user);
+    return { status };
   }
 
   private updateUser(user: UserEntity) {
